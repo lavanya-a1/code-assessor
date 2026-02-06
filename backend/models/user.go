@@ -7,15 +7,21 @@ import (
 	"gorm.io/gorm"
 )
 
+// User represents a platform user
 type User struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
-	Username  string         `gorm:"unique;not null;size:50" json:"username"`
-	Email     string         `gorm:"unique;not null;size:100" json:"email"`
-	Password  string         `gorm:"not null;size:255" json:"-"`
-	Role      string         `gorm:"default:student;size:20" json:"role"`
+	Username  string         `gorm:"column:username;size:100;unique;not null" json:"username"`
+	Email     string         `gorm:"size:100;unique;not null" json:"email"`
+	Password  string         `gorm:"column:password;size:255;not null" json:"-"`
+	Role      string         `gorm:"size:50;default:student" json:"role"` // student, faculty, hod, college_admin, super_admin
+	RoleID    *uint          `json:"role_id,omitempty"`
+	CollegeID *uint          `json:"college_id,omitempty"`
+	Phone     string         `gorm:"size:15" json:"phone,omitempty"`
+	IsActive  bool           `gorm:"default:true" json:"is_active"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	// Note: Foreign key constraints added manually to avoid circular dependency
 }
 
 // HashPassword hashes the user's password

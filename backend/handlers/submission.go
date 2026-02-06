@@ -124,6 +124,10 @@ func SubmitCode(c *gin.Context) {
 		return
 	}
 
+	// Update activity and streak tracking
+	UpdateUserActivity(userID.(uint))
+	UpdateUserStreak(userID.(uint))
+
 	// If all tests passed, mark problem as completed (if not already completed)
 	if allPassed {
 		var completion models.UserProblemCompletion

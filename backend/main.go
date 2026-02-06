@@ -71,6 +71,7 @@ func main() {
 			// User's own submissions and completed problems
 			protected.GET("/my/submissions", handlers.GetUserSubmissions)
 			protected.GET("/my/completed-problems", handlers.GetUserCompletedProblems)
+			protected.GET("/dashboard", handlers.GetDashboard)
 			protected.POST("/submit", handlers.SubmitCode)
 			protected.GET("/problems/:id/submissions", handlers.GetProblemSubmissions)
 			

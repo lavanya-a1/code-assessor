@@ -13,6 +13,7 @@ type CreateProblemRequest struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 	Difficulty  string `json:"difficulty"`
+	Tags        string `json:"tags"`
 	TimeLimit   int    `json:"time_limit"`
 	MemoryLimit int    `json:"memory_limit"`
 }
@@ -60,6 +61,7 @@ func CreateProblem(c *gin.Context) {
 		Title:       req.Title,
 		Description: req.Description,
 		Difficulty:  req.Difficulty,
+		Tags:        req.Tags,
 		TimeLimit:   req.TimeLimit,
 		MemoryLimit: req.MemoryLimit,
 		CreatedBy:   userID.(uint),
@@ -102,6 +104,7 @@ func UpdateProblem(c *gin.Context) {
 	problem.Title = req.Title
 	problem.Description = req.Description
 	problem.Difficulty = req.Difficulty
+	problem.Tags = req.Tags
 	problem.TimeLimit = req.TimeLimit
 	problem.MemoryLimit = req.MemoryLimit
 
