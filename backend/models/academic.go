@@ -6,7 +6,7 @@ import "time"
 type Role struct {
 	RoleID   uint   `gorm:"primaryKey;autoIncrement" json:"role_id"`
 	RoleName string `gorm:"size:50;unique;not null" json:"role_name"`
-	// student, faculty, hod, college_admin, super_admin
+	// student, faculty, hod, principal, college_admin, super_admin
 }
 
 // Permission defines system permissions
@@ -48,8 +48,10 @@ type Branch struct {
 	ShortName  string    `gorm:"size:20;not null" json:"short_name"`
 	CollegeID  uint      `gorm:"not null" json:"college_id"`
 	ProgramID  uint      `gorm:"not null" json:"program_id"`
+	HODID      *uint     `json:"hod_id,omitempty"`
 	College    *College  `gorm:"foreignKey:CollegeID;constraint:OnDelete:CASCADE" json:"college,omitempty"`
 	Program    *Program  `gorm:"foreignKey:ProgramID;constraint:OnDelete:CASCADE" json:"program,omitempty"`
+	HOD        *User     `gorm:"foreignKey:HODID" json:"hod,omitempty"`
 }
 
 // AcademicYear represents an academic year

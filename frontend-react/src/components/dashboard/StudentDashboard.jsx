@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { dashboardAPI } from '../../services/api';
 import './Dashboard.css';
 
-function StudentDashboard() {
+function StudentDashboard({ isAnalyticsView = false, sectionId = null }) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -23,26 +23,15 @@ function StudentDashboard() {
     const [activity, setActivity] = useState([]);
     const [leaderboard, setLeaderboard] = useState([]);
     const [userRank, setUserRank] = useState(0);
-
-    // Mock data for features not yet in API
-    const mockNotifications = [
-        { type: 'competition', title: 'Weekly Contest #42', time: 'Starts in 3 hours' },
-        { type: 'reminder', title: 'Daily Streak Warning', time: 'Complete a challenge to keep your streak' },
-        { type: 'new', title: 'New Problem Set Released', time: 'Dynamic Programming 101' },
-    ];
-
-    const mockCourses = [
-        { id: 1, name: 'Advanced Data Structures & Algorithms', instructor: 'Dr. Emily Chen', code: 'DSA-301' },
-        { id: 2, name: 'Machine Learning Fundamentals', instructor: 'Prof. Michael Bay', code: 'ML-201' },
-    ];
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
 
     useEffect(() => {
-        if (user) {
+        if (user || isAnalyticsView) {
             loadDashboardData();
         } else {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, isAnalyticsView, sectionId]);
 
     const loadDashboardData = async () => {
         try {
@@ -69,6 +58,9 @@ function StudentDashboard() {
             setLeaderboard(data.leaderboard || []);
             setUserRank(data.current_user_rank || 0);
 
+            // Update courses
+            setEnrolledCourses(data.enrolled_courses || []);
+
         } catch (err) {
             console.error('Failed to load dashboard:', err);
             setError('Failed to load dashboard data');
@@ -76,6 +68,7 @@ function StudentDashboard() {
             setLoading(false);
         }
     };
+
 
     const getActivityColor = (count) => {
         if (count === 0) return 'var(--activity-0)';
@@ -222,15 +215,19 @@ function StudentDashboard() {
                             <button className="view-all-btn">VIEW ALL COURSES</button>
                         </div>
                         <div className="courses-grid">
-                            {mockCourses.map((course) => (
-                                <div key={course.id} className="course-card">
-                                    <div className="course-icon">{course.code}</div>
-                                    <div className="course-info">
-                                        <div className="course-name">{course.name}</div>
-                                        <div className="course-instructor">Instructor: {course.instructor}</div>
+                            {enrolledCourses.length === 0 ? (
+                                <p className="text-muted">No courses enrolled yet.</p>
+                            ) : (
+                                enrolledCourses.map((course) => (
+                                    <div key={course.id} className="course-card">
+                                        <div className="course-icon">{course.code}</div>
+                                        <div className="course-info">
+                                            <div className="course-name">{course.name}</div>
+                                            <div className="course-instructor">Instructor: {course.instructor}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
@@ -291,24 +288,15 @@ function StudentDashboard() {
                         <button className="view-full-btn">VIEW FULL LEADERBOARD</button>
                     </div>
 
-                    {/* Notifications */}
+                    {/* Notifications (Only show if any exist) */}
                     <div className="dashboard-card">
                         <h3 className="notifications-title">UPCOMING NOTIFICATIONS</h3>
                         <div className="notifications-list">
-                            {mockNotifications.map((notif, index) => (
-                                <div key={index} className="notification-item">
-                                    <span className={`notif-dot ${notif.type}`}></span>
-                                    <div className="notif-content">
-                                        <div className="notif-title">{notif.title}</div>
-                                        <div className="notif-time">
-                                            {notif.time} • <span className={`notif-tag ${notif.type}`}>{notif.type.toUpperCase()}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                            <p className="text-muted">No new notifications.</p>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     );

@@ -22,9 +22,13 @@ type FacultyCourseAssignment struct {
 	CourseID       uint          `gorm:"not null" json:"course_id"`
 	SectionID      uint          `gorm:"not null" json:"section_id"`
 	AcademicYearID uint          `gorm:"not null" json:"academic_year_id"`
+	Schedule       string        `gorm:"size:100" json:"schedule"` // e.g. "MWF 10:00 AM"
+	Status         string        `gorm:"size:20;default:ACTIVE" json:"status"`   // e.g. "ACTIVE"
+	ImageURL       string        `gorm:"size:255" json:"image_url"`
 	AssignedAt     time.Time     `gorm:"default:CURRENT_TIMESTAMP" json:"assigned_at"`
 	Faculty        *User         `gorm:"foreignKey:FacultyID;constraint:OnDelete:CASCADE" json:"faculty,omitempty"`
 	Course         *Course       `gorm:"foreignKey:CourseID;constraint:OnDelete:CASCADE" json:"course,omitempty"`
 	Section        *Section      `gorm:"foreignKey:SectionID;constraint:OnDelete:CASCADE" json:"section,omitempty"`
 	AcademicYear   *AcademicYear `gorm:"foreignKey:AcademicYearID" json:"academic_year,omitempty"`
 }
+

@@ -11,12 +11,20 @@
     --dashboard-accent-light: #60a5fa;
 }
 
+.light-theme {
+    --activity-0: #f1f5f9;
+    --activity-1: #dbeafe;
+    --activity-2: #93c5fd;
+    --activity-3: #3b82f6;
+    --activity-4: #1d4ed8;
+}
+
 .dashboard {
     max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
-    height: calc(100vh - 57px);
-    overflow-y: auto;
+    min-height: calc(100vh - 57px);
+    background-color: var(--bg-primary);
 }
 
 /* Stats Grid */
@@ -54,7 +62,7 @@
 }
 
 .stat-icon.check {
-    color: #3b82f6;
+    color: var(--accent-blue);
 }
 
 .stat-icon.bolt {
@@ -62,7 +70,7 @@
 }
 
 .stat-icon.chart {
-    color: #3b82f6;
+    color: var(--accent-blue);
 }
 
 .stat-icon.trophy {
@@ -88,7 +96,7 @@
 }
 
 .stat-change.positive {
-    color: #3b82f6;
+    color: var(--accent-blue);
 }
 
 .stat-subtitle {
@@ -140,7 +148,7 @@
 .view-all-btn {
     background: none;
     border: none;
-    color: #3b82f6;
+    color: var(--accent-blue);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -148,7 +156,7 @@
 }
 
 .view-all-btn:hover {
-    color: #60a5fa;
+    color: var(--accent-blue-hover);
 }
 
 /* Topic Proficiency */
@@ -186,7 +194,7 @@
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    background: linear-gradient(90deg, var(--accent-blue-hover), var(--accent-blue));
     border-radius: 4px;
     transition: width 0.3s ease;
 }
@@ -206,15 +214,15 @@
 }
 
 .topic-stats .easy {
-    color: #22c55e;
+    color: var(--difficulty-easy);
 }
 
 .topic-stats .medium {
-    color: #eab308;
+    color: var(--difficulty-medium);
 }
 
 .topic-stats .hard {
-    color: #ef4444;
+    color: var(--difficulty-hard);
 }
 
 /* Activity Heatmap */
@@ -295,7 +303,7 @@
 }
 
 .course-card:hover {
-    border-color: #3b82f6;
+    border-color: var(--accent-blue);
 }
 
 .course-icon {
@@ -369,7 +377,7 @@
 
 .leaderboard-item.current-user {
     background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
-    border: 1px solid #3b82f6;
+    border: 1px solid var(--accent-blue);
 }
 
 .lb-rank {
@@ -387,7 +395,7 @@
 }
 
 .lb-avatar.you {
-    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-hover));
 }
 
 .lb-info {
@@ -417,7 +425,7 @@
 }
 
 .lb-badge.top {
-    background: #3b82f6;
+    background: var(--accent-blue);
     color: white;
 }
 
@@ -476,11 +484,11 @@
 }
 
 .notif-dot.competition {
-    background: #3b82f6;
+    background: var(--accent-blue);
 }
 
 .notif-dot.reminder {
-    background: #ef4444;
+    background: var(--accent-red);
 }
 
 .notif-dot.new {
@@ -508,11 +516,11 @@
 }
 
 .notif-tag.competition {
-    color: #3b82f6;
+    color: var(--accent-blue);
 }
 
 .notif-tag.reminder {
-    color: #ef4444;
+    color: var(--accent-red);
 }
 
 .notif-tag.new {

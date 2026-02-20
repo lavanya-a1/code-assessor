@@ -1,26 +1,54 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/common/Navbar';
 import HomePage from './pages/HomePage';
 import ProblemPage from './pages/ProblemPage';
 import PlagiarismPage from './pages/PlagiarismPage';
 import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/LoginPage';
 import './styles/index.css';
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+};
+
+const AuthRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+function AppRoutes() {
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <>
+      {isAuthenticated && !isAdmin && <Navbar />}
+      <Routes>
+        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        <Route path="/problems" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/problem/:id" element={<ProtectedRoute><ProblemPage /></ProtectedRoute>} />
+        <Route path="/plagiarism" element={<ProtectedRoute><PlagiarismPage /></ProtectedRoute>} />
+      </Routes>
+    </>
+  );
+}
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/problems" element={<HomePage />} />
-          <Route path="/problem/:id" element={<ProblemPage />} />
-          <Route path="/plagiarism" element={<PlagiarismPage />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

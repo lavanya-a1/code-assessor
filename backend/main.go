@@ -75,22 +75,81 @@ func main() {
 			protected.POST("/submit", handlers.SubmitCode)
 			protected.GET("/problems/:id/submissions", handlers.GetProblemSubmissions)
 			
-			// Admin-only routes
-			admin := protected.Group("")
-			admin.Use(middleware.AdminOnly())
+			// Admin and Faculty routes
+			facultyGroup := protected.Group("")
+			facultyGroup.Use(middleware.FacultyOrAdmin())
 			{
-				admin.POST("/problems", handlers.CreateProblem)
-				admin.PUT("/problems/:id", handlers.UpdateProblem)
-				admin.DELETE("/problems/:id", handlers.DeleteProblem)
-				admin.POST("/problems/:id/testcases", handlers.CreateTestCase)
-				admin.GET("/problems/:id/testcases", handlers.GetTestCases)
-				admin.DELETE("/problems/:id/testcases/:testcase_id", handlers.DeleteTestCase)
+				facultyGroup.GET("/sections/:id/analytics", handlers.GetSectionAnalytics)
 				
-				// Plagiarism detection routes
-				admin.GET("/plagiarism/submissions/:id", handlers.CheckSubmissionPlagiarism)
-				admin.GET("/plagiarism/problems/:id", handlers.CheckProblemPlagiarism)
-				admin.GET("/plagiarism/results/:problem_id", handlers.GetPlagiarismResults)
+				// Keep admin routes separate if needed, or use same group
+				admin := facultyGroup.Group("")
+				// Note: if you want ONLY admin for these, you'd need a separate AdminOnly middleware
+				// But for now let's assume faculty can also manage problems based on your needs
+				{
+					admin.POST("/problems", handlers.CreateProblem)
+					admin.PUT("/problems/:id", handlers.UpdateProblem)
+					admin.DELETE("/problems/:id", handlers.DeleteProblem)
+					admin.POST("/problems/:id/testcases", handlers.CreateTestCase)
+					admin.GET("/problems/:id/testcases", handlers.GetTestCases)
+					admin.DELETE("/problems/:id/testcases/:testcase_id", handlers.DeleteTestCase)
+					
+					// Plagiarism detection routes
+					admin.GET("/plagiarism/submissions/:id", handlers.CheckSubmissionPlagiarism)
+					admin.GET("/plagiarism/problems/:id", handlers.CheckProblemPlagiarism)
+					admin.GET("/plagiarism/results/:problem_id", handlers.GetPlagiarismResults)
+
+					// Course routes
+					admin.GET("/courses", handlers.GetCourses)
+					admin.POST("/courses", handlers.CreateCourse)
+
+					// Lab session routes
+					admin.GET("/lab-sessions", handlers.GetLabSessions)
+					admin.POST("/lab-sessions", handlers.CreateLabSession)
+
+					// Contest routes
+					admin.GET("/contests", handlers.GetContests)
+					admin.POST("/contests", handlers.CreateContest)
+
+					// --- Additional Admin Management Routes ---
+					admin.GET("/admin/stats", handlers.GetAdminStats)
+					admin.GET("/admin/users", handlers.GetAdminUsers)
+					admin.POST("/admin/users", handlers.CreateAdminUser)
+					admin.POST("/admin/users/:id/toggle-active", handlers.ToggleUserActive)
+					admin.GET("/admin/users/template", handlers.DownloadUserTemplate)
+					admin.POST("/admin/users/bulk", handlers.BulkCreateUsers)
+					admin.GET("/admin/problems", handlers.GetAllProblemsForAdmin)
+
+					// Detail Course Session Routes
+					admin.GET("/courses/:id/sessions", handlers.GetCourseSessions)
+					admin.POST("/courses/:id/sessions", handlers.CreateSession)
+					admin.DELETE("/courses/:id/sessions/:session_id", handlers.DeleteSession)
+					admin.GET("/courses/:id/sessions/:session_id/problems", handlers.GetSessionProblems)
+					admin.POST("/courses/:id/sessions/:session_id/problems", handlers.AddProblemToSession)
+					admin.DELETE("/courses/:id/sessions/:session_id/problems/:problem_id", handlers.RemoveProblemFromSession)
+					admin.GET("/courses/:id/sessions/:session_id/lessons", handlers.GetSessionLessons)
+					admin.PUT("/courses/:id/sessions/:session_id/lessons", handlers.UpdateSessionLesson)
+				}
+
+				// HOD routes
+				hod := facultyGroup.Group("")
+				{
+					hod.GET("/hod/branch-data", handlers.GetHodBranchData)
+					hod.POST("/hod/assign-faculty", handlers.AssignFacultyToCourse)
+				}
 			}
+
+			// Principal routes
+			principal := protected.Group("/principal")
+			principal.Use(middleware.PrincipalOnly())
+			{
+				principal.GET("/dashboard", handlers.GetPrincipalDashboard)
+				principal.GET("/branches", handlers.GetAllBranches)
+				principal.POST("/assign-hod", handlers.AssignHod)
+			}
+
+
+
+
 
 			// Authenticated user routes
 			// protected.GET("/problems/:id/testcases", handlers.GetTestCases) // This route is now in the admin group

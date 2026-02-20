@@ -18,6 +18,10 @@ type Course struct {
 	Branch     *Branch   `gorm:"foreignKey:BranchID;constraint:OnDelete:CASCADE" json:"branch,omitempty"`
 }
 
+func (Course) TableName() string {
+	return "courses"
+}
+
 // LabTopic represents topics within lab courses
 type LabTopic struct {
 	TopicID     uint      `gorm:"primaryKey;autoIncrement" json:"topic_id"`
@@ -51,3 +55,26 @@ type TopicProblem struct {
 	Topic       *LabTopic `gorm:"foreignKey:TopicID;constraint:OnDelete:CASCADE" json:"topic,omitempty"`
 	Problem     *Problem  `gorm:"foreignKey:ProblemID;constraint:OnDelete:CASCADE" json:"problem,omitempty"`
 }
+
+// FacultyDeadline represents tasks or deadlines for faculty
+type FacultyDeadline struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	FacultyID   uint      `gorm:"not null" json:"faculty_id"`
+	Title       string    `gorm:"size:200;not null" json:"title"`
+	Description string    `gorm:"type:text" json:"description"`
+	DueDate     time.Time `json:"due_date"`
+	Priority    string    `gorm:"size:20;default:PENDING" json:"priority"` // URGENT, PENDING
+	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	Faculty     *User     `gorm:"foreignKey:FacultyID;constraint:OnDelete:CASCADE" json:"-"`
+}
+
+// FacultyInsight represents personalized insights for faculty
+type FacultyInsight struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	FacultyID uint      `gorm:"not null" json:"faculty_id"`
+	Text      string    `gorm:"type:text;not null" json:"text"`
+	Percent   int       `json:"percent"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	Faculty   *User     `gorm:"foreignKey:FacultyID;constraint:OnDelete:CASCADE" json:"-"`
+}
+

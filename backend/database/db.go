@@ -121,9 +121,12 @@ func Migrate() error {
 	if err := DB.AutoMigrate(
 		&models.UserStreak{},
 		&models.UserActivity{},
+		&models.FacultyDeadline{},
+		&models.FacultyInsight{},
 	); err != nil {
 		return err
 	}
+
 
 	log.Println("Database migration completed successfully!")
 	return nil

@@ -33,6 +33,7 @@ export function AuthProvider({ children }) {
     };
 
     const isAdmin = () => user?.role === 'admin';
+    const isPrincipal = () => user?.role === 'principal';
 
     const value = {
         user,
@@ -41,6 +42,7 @@ export function AuthProvider({ children }) {
         register,
         logout,
         isAdmin,
+        isPrincipal,
         isAuthenticated: !!user,
     };
 

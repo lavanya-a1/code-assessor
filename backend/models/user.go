@@ -16,11 +16,15 @@ type User struct {
 	Role      string         `gorm:"size:50;default:student" json:"role"` // student, faculty, hod, college_admin, super_admin
 	RoleID    *uint          `json:"role_id,omitempty"`
 	CollegeID *uint          `json:"college_id,omitempty"`
+	BranchID  *uint          `json:"branch_id,omitempty"`
 	Phone     string         `gorm:"size:15" json:"phone,omitempty"`
 	IsActive  bool           `gorm:"default:true" json:"is_active"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+
+	// Relations
+	Branch *Branch `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
 	// Note: Foreign key constraints added manually to avoid circular dependency
 }
 

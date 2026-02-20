@@ -55,14 +55,27 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func AdminOnly() gin.HandlerFunc {
+func FacultyOrAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, exists := c.Get("role")
-		if !exists || role != "admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		if !exists || (role != "admin" && role != "faculty" && role != "hod" && role != "principal") {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: faculty or admin role required"})
 			c.Abort()
 			return
 		}
 		c.Next()
 	}
 }
+
+func PrincipalOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists || role != "principal" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: principal role required"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
