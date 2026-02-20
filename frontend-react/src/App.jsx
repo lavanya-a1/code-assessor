@@ -23,11 +23,12 @@ const AuthRoute = ({ children }) => {
 
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const hideNavbar = ['admin', 'super_admin', 'principal'].includes(user?.role);
 
   return (
     <>
-      {isAuthenticated && !isAdmin && <Navbar />}
+      {isAuthenticated && !hideNavbar && <Navbar />}
+
       <Routes>
         <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

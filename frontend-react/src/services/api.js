@@ -149,6 +149,22 @@ export const principalAPI = {
     assignHod: (data) => api.post('/principal/assign-hod', data),
 };
 
+// Super Admin API
+export const superAdminAPI = {
+    getStats: () => api.get('/super-admin/stats'),
+    getColleges: () => api.get('/super-admin/colleges'),
+    createCollege: (data) => api.post('/super-admin/colleges', data),
+    updateCollege: (id, data) => api.put(`/super-admin/colleges/${id}`, data),
+    getPrograms: () => api.get('/super-admin/programs'),
+    createProgram: (data) => api.post('/super-admin/programs', data),
+    getBranches: () => api.get('/super-admin/branches'),
+    createBranch: (data) => api.post('/super-admin/branches', data),
+    getUsers: () => api.get('/super-admin/users'),
+    updateUser: (id, data) => api.put(`/super-admin/users/${id}`, data),
+};
+
+
+
 
 
 

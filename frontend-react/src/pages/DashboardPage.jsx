@@ -5,6 +5,8 @@ import TeacherAnalytics from '../components/dashboard/TeacherAnalytics';
 import AdminDashboard from '../components/dashboard/AdminDashboard';
 import HodDashboard from '../components/dashboard/HodDashboard';
 import PrincipalDashboard from '../components/dashboard/PrincipalDashboard';
+import SuperAdminDashboard from '../components/dashboard/SuperAdminDashboard';
+
 
 import { useAuth } from '../context/AuthContext';
 
@@ -34,7 +36,10 @@ function DashboardPage() {
                 return <HodDashboard />;
             case 'principal':
                 return <PrincipalDashboard />;
+            case 'super_admin':
+                return <SuperAdminDashboard />;
             default:
+
                 return <StudentDashboard />;
         }
     };

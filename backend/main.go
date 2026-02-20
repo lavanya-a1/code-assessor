@@ -147,6 +147,25 @@ func main() {
 				principal.POST("/assign-hod", handlers.AssignHod)
 			}
 
+			// Super Admin routes
+			superAdmin := protected.Group("/super-admin")
+			superAdmin.Use(middleware.SuperAdminOnly())
+			{
+				superAdmin.GET("/stats", handlers.GetSuperAdminStats)
+				superAdmin.GET("/colleges", handlers.GetAllColleges)
+				superAdmin.POST("/colleges", handlers.CreateCollege)
+				superAdmin.PUT("/colleges/:id", handlers.UpdateCollege)
+				
+				superAdmin.GET("/programs", handlers.GetAllPrograms)
+				superAdmin.POST("/programs", handlers.CreateProgram)
+				
+				superAdmin.GET("/branches", handlers.SuperAdminGetAllBranches)
+				superAdmin.POST("/branches", handlers.CreateBranch)
+
+				superAdmin.GET("/users", handlers.SuperAdminGetAllUsers)
+				superAdmin.PUT("/users/:id", handlers.SuperAdminUpdateUser)
+			}
+
 
 
 
