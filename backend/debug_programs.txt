@@ -1,0 +1,6 @@
+ID | Name
+-----------
+1 | Bachelor of Technology
+2 | Master of Technology
+3 | Bachelor of Science
+4 | Computer Science

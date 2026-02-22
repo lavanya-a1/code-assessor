@@ -49,8 +49,8 @@ type Branch struct {
 	CollegeID  uint      `gorm:"not null" json:"college_id"`
 	ProgramID  uint      `gorm:"not null" json:"program_id"`
 	HODID      *uint     `json:"hod_id,omitempty"`
-	College    *College  `gorm:"foreignKey:CollegeID;constraint:OnDelete:CASCADE" json:"college,omitempty"`
-	Program    *Program  `gorm:"foreignKey:ProgramID;constraint:OnDelete:CASCADE" json:"program,omitempty"`
+	College    *College  `gorm:"foreignKey:CollegeID;references:CollegeID;constraint:OnDelete:CASCADE" json:"college,omitempty"`
+	Program    *Program  `gorm:"foreignKey:ProgramID;references:ProgramID;constraint:OnDelete:CASCADE" json:"program,omitempty"`
 	HOD        *User     `gorm:"foreignKey:HODID" json:"hod,omitempty"`
 }
 

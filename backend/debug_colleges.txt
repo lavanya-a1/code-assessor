@@ -1,0 +1,7 @@
+ID | Name | ShortName
+------------------------
+1 | Vishnu Institute of Technology | VIT
+2 | Gayatri Vidya Parishad College of Engineering | GVPCE
+3 | SRKR Engineering College | SRKR
+4 | Engineering Institute of Technology | EIT
+5 | Shri Vishnu Engineering College For Women | SVECW

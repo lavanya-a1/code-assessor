@@ -80,6 +80,7 @@ func CreateProgram(c *gin.Context) {
 
 func SuperAdminGetAllBranches(c *gin.Context) {
 	var branches []models.Branch
+	// Explicitly preload with joins to ensure relations are found
 	if err := database.DB.Preload("College").Preload("Program").Find(&branches).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch branches"})
 		return
@@ -104,17 +105,19 @@ func CreateBranch(c *gin.Context) {
 // --- Super Admin Stats ---
 
 func GetSuperAdminStats(c *gin.Context) {
-	var collegeCount, userCount, problemCount, submissionCount int64
+	var collegeCount, userCount, problemCount, submissionCount, branchCount int64
 	database.DB.Model(&models.College{}).Count(&collegeCount)
 	database.DB.Model(&models.User{}).Count(&userCount)
 	database.DB.Model(&models.Problem{}).Count(&problemCount)
 	database.DB.Model(&models.Submission{}).Count(&submissionCount)
+	database.DB.Model(&models.Branch{}).Count(&branchCount)
 
 	c.JSON(http.StatusOK, gin.H{
 		"total_colleges":    collegeCount,
 		"total_users":       userCount,
 		"total_problems":    problemCount,
 		"total_submissions": submissionCount,
+		"total_branches":    branchCount,
 	})
 }
 
