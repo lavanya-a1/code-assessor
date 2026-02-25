@@ -27,6 +27,12 @@ const HodDashboard = () => {
     const [assignLoading, setAssignLoading] = useState(false);
     const [assignMessage, setAssignMessage] = useState({ type: '', text: '' });
 
+    // Course Selection State
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [selectedSection, setSelectedSection] = useState('');
+    const [sectionStudents, setSectionStudents] = useState([]);
+    const [studentsLoading, setStudentsLoading] = useState(false);
+
     useEffect(() => {
         fetchDashboardData();
     }, []);
@@ -34,6 +40,12 @@ const HodDashboard = () => {
     useEffect(() => {
         if (activeTab === 'assign') {
             fetchBranchData();
+        }
+        if (activeTab === 'overview') {
+            fetchBranchData();
+            setSelectedCourse(null);
+            setSelectedSection('');
+            setSectionStudents([]);
         }
     }, [activeTab]);
 
@@ -56,6 +68,34 @@ const HodDashboard = () => {
             setBranchData(data);
         } catch (err) {
             console.error('Failed to fetch branch data', err);
+        }
+    };
+
+    const fetchSectionStudents = async (sectionId) => {
+        try {
+            setStudentsLoading(true);
+            const response = await dashboardAPI.getSectionStudents(sectionId);
+            setSectionStudents(response.students || []);
+            setStudentsLoading(false);
+        } catch (err) {
+            console.error('Failed to fetch students', err);
+            setStudentsLoading(false);
+        }
+    };
+
+    const handleCourseSelect = (course) => {
+        setSelectedCourse(course);
+        setSelectedSection('');
+        setSectionStudents([]);
+    };
+
+    const handleSectionChange = (e) => {
+        const sectionId = e.target.value;
+        setSelectedSection(sectionId);
+        if (sectionId) {
+            fetchSectionStudents(sectionId);
+        } else {
+            setSectionStudents([]);
         }
     };
 
@@ -170,61 +210,146 @@ const HodDashboard = () => {
             </header>
 
             <div className="dashboard hod-dashboard">
-                <header className="dashboard-header">
-                    <div className="header-left">
-                        <h1>HOD Dashboard</h1>
-                        <p className="subtitle">Manage courses and faculty assignments for your branch</p>
-                    </div>
-                </header>
-
                 <div className="dashboard-content">
                     {activeTab === 'overview' && (
-                        <div className="dashboard-card overview-card">
-                            <div className="card-header">
-                                <h3>Course Assignments</h3>
-                            </div>
-                            <div className="table-container">
-                                <table className="hod-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Course Code</th>
-                                            <th>Course Name</th>
-                                            <th>Section</th>
-                                            <th>Assigned Faculty</th>
-                                            <th>Students</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {assignments.length > 0 ? (
-                                            assignments.map((a) => (
-                                                <tr key={a.id}>
-                                                    <td className="font-mono">{a.course_code}</td>
-                                                    <td>{a.course_name}</td>
-                                                    <td>{a.section_name}</td>
-                                                    <td className="faculty-cell">
-                                                        <div className="faculty-avatar">{a.faculty_name.charAt(0)}</div>
-                                                        {a.faculty_name}
-                                                    </td>
-                                                    <td>
-                                                        <span className="student-badge">{a.student_count}</span>
-                                                    </td>
-                                                </tr>
-                                            ))
+                        <div className="overview-section">
+                            {!selectedCourse ? (
+                                <>
+                                    <div className="section-header">
+                                        <h2>All Courses</h2>
+                                        <p>Select a course to view sections and students</p>
+                                    </div>
+                                    <div className="courses-table-wrapper">
+                                        {branchData.courses.length > 0 ? (
+                                            <table className="courses-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Course Code</th>
+                                                        <th>Course Name</th>
+                                                        <th>Type</th>
+                                                        <th>Credits</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {branchData.courses.map((course) => (
+                                                        <tr key={course.id} className="course-row">
+                                                            <td className="course-code-cell">{course.course_code}</td>
+                                                            <td className="course-name-cell">{course.course_name}</td>
+                                                            <td>
+                                                                <span className={`course-type-badge ${course.course_type}`}>
+                                                                    {course.course_type?.toUpperCase()}
+                                                                </span>
+                                                            </td>
+                                                            <td>{course.credits}</td>
+                                                            <td>
+                                                                <button 
+                                                                    className="view-btn"
+                                                                    onClick={() => handleCourseSelect(course)}
+                                                                >
+                                                                    View Details
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         ) : (
-                                            <tr>
-                                                <td colSpan="5" className="text-center empty-cell">No assignments found</td>
-                                            </tr>
+                                            <div className="empty-state">
+                                                <p>No courses found for your branch</p>
+                                            </div>
                                         )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="section-header">
+                                        <button className="back-btn" onClick={() => setSelectedCourse(null)}>
+                                            ← Back to Courses
+                                        </button>
+                                        <div>
+                                            <h2>{selectedCourse.course_name}</h2>
+                                            <p className="course-detail">
+                                                {selectedCourse.course_code} • 
+                                                <span className={`type-inline ${selectedCourse.course_type}`}>
+                                                    {selectedCourse.course_type?.toUpperCase()}
+                                                </span> • 
+                                                {selectedCourse.credits} Credits
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="section-selector">
+                                        <label htmlFor="section-dropdown">Select Section:</label>
+                                        <select 
+                                            id="section-dropdown"
+                                            value={selectedSection} 
+                                            onChange={handleSectionChange}
+                                            className="section-dropdown"
+                                        >
+                                            <option value="">Choose a section...</option>
+                                            {branchData.sections
+                                                .filter(s => s.course_id === selectedCourse.id)
+                                                .map(section => (
+                                                    <option key={section.section_id} value={section.section_id}>
+                                                        {section.section_name}
+                                                    </option>
+                                                ))
+                                            }
+                                        </select>
+                                    </div>
+
+                                    {selectedSection && (
+                                        <div className="students-section">
+                                            <h3>Students Enrolled</h3>
+                                            {studentsLoading ? (
+                                                <div className="loading-spinner">Loading students...</div>
+                                            ) : sectionStudents.length > 0 ? (
+                                                <div className="table-container">
+                                                    <table className="students-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>ID</th>
+                                                                <th>Username</th>
+                                                                <th>Email</th>
+                                                                <th>Phone</th>
+                                                                <th>Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {sectionStudents.map((student) => (
+                                                                <tr key={student.id}>
+                                                                    <td>{student.id}</td>
+                                                                    <td>{student.username}</td>
+                                                                    <td>{student.email}</td>
+                                                                    <td>{student.phone || 'N/A'}</td>
+                                                                    <td>
+                                                                        <span className={`status-badge ${student.is_active ? 'active' : 'inactive'}`}>
+                                                                            {student.is_active ? 'Active' : 'Inactive'}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            ) : (
+                                                <div className="empty-state">
+                                                    <p>No students enrolled in this section</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     )}
 
                     {activeTab === 'assign' && (
-                        <div className="dashboard-card assign-card">
-                            <div className="card-header">
-                                <h3>Assign Faculty to Course</h3>
+                        <div className="assign-section">
+                            <div className="section-header">
+                                <h2>Assign Faculty to Course</h2>
+                                <p>Select a course, section, and faculty member to create an assignment</p>
                             </div>
                             <form className="assign-form" onSubmit={handleAssign}>
                                 <div className="form-grid">
@@ -285,10 +410,10 @@ const HodDashboard = () => {
                     )}
 
                     {activeTab === 'teachings' && (
-                        <div className="dashboard-card teachings-card">
-                            <div className="card-header">
-                                <h3>My Teaching Assignments</h3>
-                                <p className="subtitle">Courses you are teaching as faculty</p>
+                        <div className="teachings-section">
+                            <div className="section-header">
+                                <h2>My Teaching Assignments</h2>
+                                <p>Courses you are teaching as faculty</p>
                             </div>
                             <div className="table-container">
                                 {myTeachings.length > 0 ? (

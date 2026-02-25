@@ -111,6 +111,7 @@ export const dashboardAPI = {
     getLabSessions: () => api.get('/lab-sessions'),
     getHodBranchData: () => api.get('/hod/branch-data'),
     assignFaculty: (data) => api.post('/hod/assign-faculty', data),
+    getSectionStudents: (sectionId) => api.get(`/hod/sections/${sectionId}/students`),
 };
 
 // Admin API
