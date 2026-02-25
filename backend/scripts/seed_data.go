@@ -81,8 +81,8 @@ func main() {
 
 	// 4. Create Courses
 	courses := []models.Course{
-		{CourseCode: "CS201", CourseName: "Data Structures", CourseType: "PROGRAMMING", SemesterID: semester.SemesterID, BranchID: branch.BranchID},
-		{CourseCode: "CS202", CourseName: "Algorithms", CourseType: "ALGORITHMS", SemesterID: semester.SemesterID, BranchID: branch.BranchID},
+		{CourseCode: "CS201", CourseName: "Data Structures", CourseType: "lab", SemesterID: semester.SemesterID, BranchID: branch.BranchID, Credits: 4},
+		{CourseCode: "CS202", CourseName: "Algorithms", CourseType: "theory", SemesterID: semester.SemesterID, BranchID: branch.BranchID, Credits: 3},
 	}
 	for i := range courses {
 		database.DB.FirstOrCreate(&courses[i], models.Course{CourseCode: courses[i].CourseCode})
@@ -176,9 +176,10 @@ func main() {
 	itCourse := models.Course{
 		CourseCode: "IT301",
 		CourseName: "Web Engineering",
-		CourseType: "PROGRAMMING",
+		CourseType: "lab",
 		SemesterID: semester.SemesterID,
 		BranchID:   branch.BranchID,
+		Credits:    4,
 	}
 	database.DB.FirstOrCreate(&itCourse, models.Course{CourseCode: "IT301"})
 
