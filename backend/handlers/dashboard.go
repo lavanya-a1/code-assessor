@@ -46,6 +46,7 @@ type AdminDashboardResponse struct {
 
 type HodDashboardResponse struct {
 	CourseAssignments []HodCourseAssignment `json:"course_assignments"`
+	MyTeachings       []SectionAssignment   `json:"my_teachings"`
 }
 
 type HodCourseAssignment struct {
@@ -420,8 +421,37 @@ func getHodDashboard(c *gin.Context, hod *models.User) {
 		}
 	}
 
+	// Also fetch HOD's own teaching assignments
+	var myTeachings []SectionAssignment
+	var hodAssignmentsAsFaculty []models.FacultyCourseAssignment
+	database.DB.Preload("Course").Preload("Section").
+		Where("faculty_id = ?", hod.ID).
+		Find(&hodAssignmentsAsFaculty)
+
+	for _, assignment := range hodAssignmentsAsFaculty {
+		var studentCount int64
+		database.DB.Model(&models.StudentEnrollment{}).
+			Where("section_id = ?", assignment.SectionID).
+			Count(&studentCount)
+
+		teaching := SectionAssignment{
+			ID:            assignment.ID,
+			SectionID:     assignment.SectionID,
+			CourseCode:    assignment.Course.CourseCode,
+			CourseName:    assignment.Course.CourseName,
+			CourseType:    assignment.Course.CourseType,
+			SectionName:   assignment.Section.SectionName,
+			Schedule:      assignment.Schedule,
+			EnrolledCount: int(studentCount),
+			ImageURL:      assignment.ImageURL,
+			Status:        assignment.Status,
+		}
+		myTeachings = append(myTeachings, teaching)
+	}
+
 	response := HodDashboardResponse{
 		CourseAssignments: hodAssignments,
+		MyTeachings:       myTeachings,
 	}
 
 	c.JSON(http.StatusOK, response)
