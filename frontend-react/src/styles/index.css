@@ -250,9 +250,14 @@ body {
 
 /* Main Container */
 .main-container {
-    height: calc(100vh - 64px);
+    height: calc(100vh - var(--navbar-height, 64px));
     overflow-y: auto;
     background: var(--bg-primary);
+}
+
+.main-container.full-height {
+    --navbar-height: 0px;
+    height: 100vh;
 }
 
 /* Problems View */

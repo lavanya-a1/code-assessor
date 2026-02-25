@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { superAdminAPI } from '../../services/api';
 import './SuperAdminDashboard.css';
 
 const SuperAdminDashboard = () => {
+    const navigate = useNavigate();
     const { logout, user } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeSection, setActiveSection] = useState('overview'); // overview, colleges, programs, branches, users
@@ -80,15 +84,29 @@ const SuperAdminDashboard = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
-        data.college_id = parseInt(data.college_id);
-        data.program_id = parseInt(data.program_id);
+
+        // Ensure numeric IDs
+        const payload = {
+            ...data,
+            college_id: parseInt(data.college_id),
+            program_id: parseInt(data.program_id)
+        };
+
+        if (!payload.college_id || !payload.program_id) {
+            showToast('Please select both college and program', 'error');
+            return;
+        }
+
         try {
-            await superAdminAPI.createBranch(data);
+            setLoading(true);
+            await superAdminAPI.createBranch(payload);
             showToast('Branch created successfully');
             setModal(null);
-            fetchData();
+            await fetchData(); // Await refresh
         } catch (err) {
             showToast(err.message, 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -131,6 +149,13 @@ const SuperAdminDashboard = () => {
                     <div className="sa-stat-info">
                         <h3>Problems</h3>
                         <p>{stats?.total_problems || 0}</p>
+                    </div>
+                </div>
+                <div className="sa-stat-card">
+                    <div className="sa-stat-icon teal-bg">🌿</div>
+                    <div className="sa-stat-info">
+                        <h3>Branches</h3>
+                        <p>{stats?.total_branches || 0}</p>
                     </div>
                 </div>
                 <div className="sa-stat-card">
@@ -266,8 +291,8 @@ const SuperAdminDashboard = () => {
                             <tr key={b.branch_id}>
                                 <td style={{ fontWeight: 600 }}>{b.branch_name}</td>
                                 <td>{b.short_name}</td>
-                                <td>{b.college?.short_name || 'N/A'}</td>
-                                <td>{b.program?.program_name || 'N/A'}</td>
+                                <td>{b.college?.college_name || (b.college_id ? `Col ID: ${b.college_id}` : 'N/A')}</td>
+                                <td>{b.program?.program_name || (b.program_id ? `Prog ID: ${b.program_id}` : 'N/A')}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -352,12 +377,6 @@ const SuperAdminDashboard = () => {
                         <span className="sa-nav-icon">👥</span>
                         <span>Users</span>
                     </button>
-                    <div style={{ marginTop: 'auto', padding: '1rem' }}>
-                        <button className="sa-nav-item" onClick={logout} style={{ color: 'var(--sa-danger)' }}>
-                            <span className="sa-nav-icon">🚪</span>
-                            <span>Logout</span>
-                        </button>
-                    </div>
                 </nav>
             </aside>
 
@@ -372,12 +391,23 @@ const SuperAdminDashboard = () => {
                             {activeSection === 'users' && 'User Access Control'}
                         </h1>
                     </div>
-                    <div className="sa-user-menu">
-                        <div className="sa-user-info" style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{user?.username}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--sa-text-light)' }}>Super Admin</div>
+                    <div className="sa-header-actions">
+                        <button className="sa-theme-toggle" onClick={toggleTheme} title="Toggle Theme">
+                            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+                        </button>
+
+                        <div className="sa-user-menu">
+                            <div className="sa-user-info" style={{ textAlign: 'right' }}>
+                                <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{user?.username}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--sa-text-muted)' }}>Super Admin</div>
+                            </div>
+                            <div className="sa-avatar">{user?.username?.[0].toUpperCase()}</div>
                         </div>
-                        <div className="sa-avatar">{user?.username?.[0].toUpperCase()}</div>
+
+                        <button className="sa-header-logout" onClick={() => { logout(); navigate('/login'); }} title="Logout">
+                            <LogoutIcon />
+                            <span>Logout</span>
+                        </button>
                     </div>
                 </header>
 
@@ -528,5 +558,25 @@ const SuperAdminDashboard = () => {
         </div>
     );
 };
+
+const SunIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+);
+const MoonIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+);
+const LogoutIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+);
 
 export default SuperAdminDashboard;

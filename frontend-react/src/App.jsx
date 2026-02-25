@@ -23,7 +23,7 @@ const AuthRoute = ({ children }) => {
 
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
-  const hideNavbar = ['admin', 'super_admin', 'principal'].includes(user?.role);
+  const hideNavbar = ['admin', 'super_admin', 'principal', 'faculty', 'hod', 'student'].includes(user?.role);
 
   return (
     <>

@@ -1,18 +1,46 @@
-/* Super Admin Dashboard Styles */
 :root {
     --sa-primary: #6366f1;
     --sa-primary-dark: #4f46e5;
     --sa-secondary: #ec4899;
+}
+
+.light-theme {
     --sa-bg: #f8fafc;
-    --sa-sidebar: #1e293b;
-    --sa-text: #334155;
-    --sa-text-light: #64748b;
+    --sa-sidebar: #ffffff;
+    --sa-sidebar-text: #1e293b;
+    --sa-sidebar-text-muted: #64748b;
+    --sa-sidebar-hover: #f1f5f9;
+    --sa-sidebar-border: #e2e8f0;
     --sa-card-bg: #ffffff;
     --sa-border: #e2e8f0;
+    --sa-text: #1e293b;
+    --sa-text-muted: #64748b;
+    --sa-modal-bg: #ffffff;
+    --sa-table-head: #f8fafc;
+}
+
+.dark-theme {
+    --sa-bg: #0a0a0a;
+    --sa-sidebar: #0f172a;
+    --sa-sidebar-text: #f8fafc;
+    --sa-sidebar-text-muted: #94a3b8;
+    --sa-sidebar-hover: rgba(255, 255, 255, 0.05);
+    --sa-sidebar-border: #1e293b;
+    --sa-card-bg: #0f172a;
+    --sa-border: #1e293b;
+    --sa-text: #f8fafc;
+    --sa-text-muted: #94a3b8;
+    --sa-modal-bg: #1e293b;
+    --sa-table-head: #1e293b;
+}
+
+/* Fallback/Default Variables */
+:root {
     --sa-success: #10b981;
     --sa-danger: #ef4444;
     --sa-warning: #f59e0b;
 }
+
 
 .sa-layout {
     display: flex;
@@ -26,12 +54,13 @@
 .sa-sidebar {
     width: 280px;
     background: var(--sa-sidebar);
-    color: white;
+    color: var(--sa-sidebar-text);
     display: flex;
     flex-direction: column;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: sticky;
     top: 0;
+    border-right: 1px solid var(--sa-sidebar-border);
     height: 100vh;
     z-index: 100;
 }
@@ -69,7 +98,7 @@
     gap: 1rem;
     padding: 0.875rem 1rem;
     border-radius: 0.75rem;
-    color: #94a3b8;
+    color: var(--sa-sidebar-text-muted);
     text-decoration: none;
     transition: all 0.2s;
     border: none;
@@ -80,8 +109,8 @@
 }
 
 .sa-nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    background: var(--sa-sidebar-hover);
+    color: var(--sa-sidebar-text);
 }
 
 .sa-nav-item.active {
@@ -108,7 +137,7 @@
 
 .sa-header {
     height: 80px;
-    background: white;
+    background: var(--sa-card-bg);
     border-bottom: 1px solid var(--sa-border);
     display: flex;
     align-items: center;
@@ -123,26 +152,85 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
-    color: var(--sa-sidebar);
+    color: var(--sa-text);
+}
+
+.sa-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.sa-theme-toggle {
+    background: var(--sa-bg);
+    border: 1px solid var(--sa-border);
+    color: var(--sa-text-muted);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sa-theme-toggle:hover {
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+
+.sa-theme-toggle svg {
+    width: 18px;
+    height: 18px;
 }
 
 .sa-user-menu {
     display: flex;
     align-items: center;
     gap: 1rem;
+    background: var(--sa-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid var(--sa-border);
 }
 
 .sa-avatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: var(--sa-primary);
+    background: linear-gradient(135deg, var(--sa-primary), var(--sa-secondary));
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+    font-size: 0.875rem;
+}
+
+.sa-header-logout {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sa-header-logout:hover {
+    background: var(--accent-red);
+    color: white;
+}
+
+.sa-header-logout svg {
+    width: 16px;
+    height: 16px;
 }
 
 .sa-content {
@@ -158,7 +246,7 @@
 }
 
 .sa-stat-card {
-    background: white;
+    background: var(--sa-card-bg);
     padding: 1.5rem;
     border-radius: 1rem;
     border: 1px solid var(--sa-border);
@@ -183,9 +271,34 @@
     font-size: 1.5rem;
 }
 
+.blue-bg {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.pink-bg {
+    background: rgba(236, 72, 153, 0.1);
+    color: #ec4899;
+}
+
+.green-bg {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.amber-bg {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.teal-bg {
+    background: rgba(20, 184, 166, 0.1);
+    color: #14b8a6;
+}
+
 .sa-stat-info h3 {
     font-size: 0.875rem;
-    color: var(--sa-text-light);
+    color: var(--sa-text-muted);
     margin: 0 0 0.25rem 0;
     font-weight: 500;
 }
@@ -194,7 +307,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
-    color: var(--sa-sidebar);
+    color: var(--sa-text);
 }
 
 /* Utils */
@@ -220,7 +333,7 @@
 
 /* Table Section */
 .sa-section {
-    background: white;
+    background: var(--sa-card-bg);
     border-radius: 1rem;
     border: 1px solid var(--sa-border);
     overflow: hidden;
@@ -253,8 +366,8 @@
 
 .sa-table th {
     padding: 1rem 2rem;
-    background: #f8fafc;
-    color: var(--sa-text-light);
+    background: var(--sa-table-head);
+    color: var(--sa-text-muted);
     font-weight: 600;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -272,7 +385,7 @@
 }
 
 .sa-table tr:hover td {
-    background: #f8fafc;
+    background: var(--sa-table-head);
 }
 
 /* Form / Modals */
@@ -291,13 +404,14 @@
 }
 
 .sa-modal {
-    background: white;
+    background: var(--sa-modal-bg);
     width: 100%;
     max-width: 500px;
     border-radius: 1.25rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     padding: 2.5rem;
     position: relative;
+    color: var(--sa-text);
     animation: modalSlide 0.3s ease-out;
 }
 
@@ -344,7 +458,9 @@
 .sa-input {
     width: 100%;
     padding: 0.75rem 1rem;
+    background: var(--sa-bg);
     border: 1px solid var(--sa-border);
+    color: var(--sa-text);
     border-radius: 0.75rem;
     font-size: 0.875rem;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -407,12 +523,14 @@
     right: 2rem;
     padding: 1rem 1.5rem;
     border-radius: 0.75rem;
-    background: white;
+    background: var(--sa-card-bg);
+    color: var(--sa-text);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 0.75rem;
     z-index: 1000;
+    border: 1px solid var(--sa-border);
     border-left: 4px solid var(--sa-primary);
     animation: toastSlide 0.3s ease-out;
 }

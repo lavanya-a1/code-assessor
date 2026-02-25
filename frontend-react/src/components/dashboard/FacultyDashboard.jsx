@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { dashboardAPI } from '../../services/api';
 import './FacultyDashboard.css';
 
 const FacultyDashboard = ({ onSelectCourse }) => {
+    const navigate = useNavigate();
+    const { logout, user } = useAuth();
+    const { theme, toggleTheme } = useTheme();
+
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -35,87 +42,118 @@ const FacultyDashboard = ({ onSelectCourse }) => {
 
     const { stats, assigned_sections, upcoming_deadlines, insights } = data;
 
+    const handleLogout = () => { logout(); navigate('/login'); };
 
     return (
-        <div className="faculty-dashboard">
-            <header className="faculty-header">
-                <h1>My Courses</h1>
-                <p>Welcome back. Here's an overview of your active sections.</p>
+        <div className="faculty-layout">
+            <header className="f-topbar">
+                <div className="f-topbar-left">
+                    <div className="f-brand">
+                        <div className="f-brand-icon"><span>&lt;&gt;</span></div>
+                        <span className="f-brand-name">CodeLearn Pro</span>
+                    </div>
+                </div>
+
+                <div className="f-topbar-right">
+                    <button className="f-theme-toggle" onClick={toggleTheme} title="Toggle Theme">
+                        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+                    </button>
+
+                    <div className="f-user-chip">
+                        <div className="f-user-avatar">{(user?.username || 'F')[0].toUpperCase()}</div>
+                        <div className="f-user-info">
+                            <span className="f-user-name">{user?.username || 'Faculty'}</span>
+                            <span className="f-user-role">Faculty Member</span>
+                        </div>
+                    </div>
+
+                    <button className="f-header-logout" onClick={handleLogout} title="Logout">
+                        <LogoutIcon />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </header>
 
-            <div className="faculty-stats">
-                <StatCard label="Total Students" value={stats.total_students} color="blue" icon="👥" />
-                <StatCard label="Active Courses" value={stats.active_courses} subtitle="Current Semester Sections" color="purple" icon="📘" />
-                <StatCard label="Pending Tasks" value={stats.pending_tasks} subtitle="Needs grading this week" color="orange" icon="⚠️" />
-                <StatCard label="Avg. Engagement" value={`${stats.avg_engagement}%`} progress={stats.avg_engagement} color="cyan" icon="📈" />
-            </div>
+            <div className="faculty-dashboard">
+                <header className="faculty-header">
+                    <h1>My Courses</h1>
+                    <p>Welcome back. Here's an overview of your active sections.</p>
+                </header>
 
-            <div className="sections-container">
-                <div className="sections-header">
-                    <h2>Assigned Sections</h2>
-                    <div className="view-controls">
-                        <button className="view-btn active">▦</button>
-                        <button className="view-btn">≡</button>
+                <div className="faculty-stats">
+                    <StatCard label="Total Students" value={stats.total_students} color="blue" icon="👥" />
+                    <StatCard label="Active Courses" value={stats.active_courses} subtitle="Current Semester Sections" color="purple" icon="📘" />
+                    <StatCard label="Pending Tasks" value={stats.pending_tasks} subtitle="Needs grading this week" color="orange" icon="⚠️" />
+                    <StatCard label="Avg. Engagement" value={`${stats.avg_engagement}%`} progress={stats.avg_engagement} color="cyan" icon="📈" />
+                </div>
+
+                <div className="sections-container">
+                    <div className="sections-header">
+                        <h2>Assigned Sections</h2>
+                        <div className="view-controls">
+                            <button className="view-btn active">▦</button>
+                            <button className="view-btn">≡</button>
+                        </div>
+                    </div>
+                    <div className="sections-grid">
+                        {assigned_sections && assigned_sections.map(section => (
+                            <SectionCard key={section.id} section={section} onClick={() => onSelectCourse(section)} />
+                        ))}
                     </div>
                 </div>
-                <div className="sections-grid">
-                    {assigned_sections && assigned_sections.map(section => (
-                        <SectionCard key={section.id} section={section} onClick={() => onSelectCourse(section)} />
-                    ))}
-                </div>
-            </div>
 
-            <div className="bottom-grid">
-                <div className="deadlines-card">
-                    <div className="card-header-flex">
-                        <h3>Upcoming Deadlines</h3>
-                        <span className="calendar-icon">📅</span>
-                    </div>
-                    <div className="deadlines-list">
-                        {upcoming_deadlines && upcoming_deadlines.map(deadline => (
-                            <div key={deadline.id} className="deadline-item">
-                                <div className="deadline-icon-box">📋</div>
-                                <div className="deadline-info">
-                                    <div className="deadline-title">{deadline.title}</div>
-                                    <div className="deadline-desc">{deadline.description}</div>
+                <div className="bottom-grid">
+                    <div className="deadlines-card">
+                        <div className="card-header-flex">
+                            <h3>Upcoming Deadlines</h3>
+                            <span className="calendar-icon">📅</span>
+                        </div>
+                        <div className="deadlines-list">
+                            {upcoming_deadlines && upcoming_deadlines.map(deadline => (
+                                <div key={deadline.id} className="deadline-item">
+                                    <div className="deadline-icon-box">📋</div>
+                                    <div className="deadline-info">
+                                        <div className="deadline-title">{deadline.title}</div>
+                                        <div className="deadline-desc">{deadline.description}</div>
+                                    </div>
+                                    <span className={`priority-badge priority-${deadline.priority.toLowerCase()}`}>
+                                        {deadline.priority}
+                                    </span>
                                 </div>
-                                <span className={`priority-badge priority-${deadline.priority.toLowerCase()}`}>
-                                    {deadline.priority}
-                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="insights-card">
+                        <div className="card-header-flex">
+                            <h3>Faculty Insights</h3>
+                        </div>
+                        {insights && insights.map(insight => (
+                            <div key={insight.id}>
+                                <p className="insight-text">{insight.text}</p>
+                                <button className="insight-report-btn">View Full Report</button>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="insights-card">
-                    <div className="card-header-flex">
-                        <h3>Faculty Insights</h3>
-                    </div>
-                    {insights && insights.map(insight => (
-                        <div key={insight.id}>
-                            <p className="insight-text">{insight.text}</p>
-                            <button className="insight-report-btn">View Full Report</button>
+                <footer className="dashboard-footer">
+                    <div className="footer-left">
+                        <div className="brand-small">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#3b82f6">
+                                <path d="M12 2L1 7l11 5 11-5-11-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                            </svg>
+                            <span>University LMS v4.2</span>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            <footer className="dashboard-footer">
-                <div className="footer-left">
-                    <div className="brand-small">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#3b82f6">
-                            <path d="M12 2L1 7l11 5 11-5-11-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                        </svg>
-                        <span>University LMS v4.2</span>
+                        <p>© 2024 University Portal Systems. All pedagogical rights reserved.</p>
                     </div>
-                    <p>© 2024 University Portal Systems. All pedagogical rights reserved.</p>
-                </div>
-                <div className="footer-right">
-                    <a href="#">Help Center</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Contact Support</a>
-                </div>
-            </footer>
+                    <div className="footer-right">
+                        <a href="#">Help Center</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Contact Support</a>
+                    </div>
+                </footer>
+            </div>
         </div>
     );
 };
@@ -156,6 +194,27 @@ const SectionCard = ({ section, onClick }) => (
             </div>
         </div>
     </div>
+);
+
+/* --- Icons --- */
+const SunIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+);
+const MoonIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+);
+const LogoutIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
 );
 
 export default FacultyDashboard;

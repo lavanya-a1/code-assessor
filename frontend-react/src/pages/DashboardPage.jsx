@@ -44,8 +44,10 @@ function DashboardPage() {
         }
     };
 
+    const hideNavbar = ['admin', 'super_admin', 'principal', 'faculty', 'hod', 'student'].includes(user?.role);
+
     return (
-        <div className="main-container">
+        <div className={`main-container ${hideNavbar ? 'full-height' : ''}`}>
             {renderDashboard()}
         </div>
     );

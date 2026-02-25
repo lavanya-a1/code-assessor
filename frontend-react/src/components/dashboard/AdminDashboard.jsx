@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { adminAPI, dashboardAPI, problemsAPI } from '../../services/api';
 import './AdminDashboard.css';
 
@@ -8,6 +9,7 @@ import './AdminDashboard.css';
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { logout, user } = useAuth();
+    const { theme, toggleTheme } = useTheme();
 
     // ── Global state ──
     const [stats, setStats] = useState(null);
@@ -347,11 +349,6 @@ const AdminDashboard = () => {
                 <button className="ad-sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} title="Toggle sidebar">
                     {sidebarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                 </button>
-
-                <button className="ad-logout-btn" onClick={handleLogout} title="Logout">
-                    <LogoutIcon />
-                    {sidebarOpen && <span>Logout</span>}
-                </button>
             </aside>
 
             {/* ── Main ── */}
@@ -393,6 +390,10 @@ const AdminDashboard = () => {
                         )}
                     </div>
                     <div className="ad-topbar-right">
+                        <button className="ad-theme-toggle" onClick={toggleTheme} title="Toggle Theme">
+                            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+                        </button>
+
                         <div className="ad-user-chip">
                             <div className="ad-user-avatar">{(user?.username || 'A')[0].toUpperCase()}</div>
                             <div className="ad-user-info">
@@ -400,6 +401,11 @@ const AdminDashboard = () => {
                                 <span className="ad-user-role">Administrator</span>
                             </div>
                         </div>
+
+                        <button className="ad-header-logout" onClick={handleLogout} title="Logout">
+                            <LogoutIcon />
+                            <span>Logout</span>
+                        </button>
                     </div>
                 </header>
 
@@ -534,40 +540,125 @@ const OverviewSection = ({ stats, onNavigate }) => (
     </div>
 );
 
-const CoursesListView = ({ courses, onOpen, onCreate }) => (
-    <div className="ad-section">
-        <div className="ad-section-header">
-            <div>
-                <h2 className="ad-section-title">All Courses</h2>
-                <p className="ad-section-desc">{courses.length} courses found. Click a course to manage its sessions.</p>
+const CoursesListView = ({ courses, onOpen, onCreate }) => {
+    const labCourses = courses.filter(c => c.course_type === 'lab');
+    const theoryCourses = courses.filter(c => c.course_type === 'theory');
+
+    return (
+        <div className="ad-section">
+            <div className="ad-section-header">
+                <div>
+                    <h2 className="ad-section-title">All Courses</h2>
+                    <p className="ad-section-desc">
+                        {courses.length} courses found ({labCourses.length} Lab, {theoryCourses.length} Theory)
+                    </p>
+                </div>
+                <button id="ad-btn-create-course" className="ad-btn ad-btn-primary" onClick={onCreate}>
+                    <PlusIcon /> New Course
+                </button>
             </div>
-            <button id="ad-btn-create-course" className="ad-btn ad-btn-primary" onClick={onCreate}>
-                <PlusIcon /> New Course
-            </button>
+            {courses.length === 0 ? (
+                <EmptyState icon={<BookIcon />} title="No courses yet" desc="Create your first course to get started." />
+            ) : (
+                <>
+                    {/* Lab Courses Section */}
+                    {labCourses.length > 0 && (
+                        <div style={{ marginBottom: '32px' }}>
+                            <h3 style={{ 
+                                fontSize: '16px', 
+                                fontWeight: '600', 
+                                marginBottom: '12px', 
+                                color: 'var(--text-primary, #e5e7eb)',
+                                paddingLeft: '4px'
+                            }}>
+                                Lab Courses ({labCourses.length})
+                            </h3>
+                            <div className="ad-users-table-wrap">
+                                <table className="ad-users-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Course Code</th>
+                                            <th>Course Name</th>
+                                            <th>Semester</th>
+                                            <th>Credits</th>
+                                            <th>Type</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {labCourses.map((c, idx) => (
+                                            <tr key={c.id}>
+                                                <td className="ad-td-num">{idx + 1}</td>
+                                                <td><strong>{c.course_code}</strong></td>
+                                                <td>{c.course_name}</td>
+                                                <td>Sem {c.semester_id}</td>
+                                                <td>{c.credits}</td>
+                                                <td><span className="ad-status-badge" style={{ background: '#10b981' }}>LAB</span></td>
+                                                <td>
+                                                    <button className="ad-btn ad-btn-ghost" onClick={() => onOpen(c)}>
+                                                        Manage <ChevronRightIcon />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Theory Courses Section */}
+                    {theoryCourses.length > 0 && (
+                        <div>
+                            <h3 style={{ 
+                                fontSize: '16px', 
+                                fontWeight: '600', 
+                                marginBottom: '12px', 
+                                color: 'var(--text-primary, #e5e7eb)',
+                                paddingLeft: '4px'
+                            }}>
+                                Theory Courses ({theoryCourses.length})
+                            </h3>
+                            <div className="ad-users-table-wrap">
+                                <table className="ad-users-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Course Code</th>
+                                            <th>Course Name</th>
+                                            <th>Semester</th>
+                                            <th>Credits</th>
+                                            <th>Type</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {theoryCourses.map((c, idx) => (
+                                            <tr key={c.id}>
+                                                <td className="ad-td-num">{idx + 1}</td>
+                                                <td><strong>{c.course_code}</strong></td>
+                                                <td>{c.course_name}</td>
+                                                <td>Sem {c.semester_id}</td>
+                                                <td>{c.credits}</td>
+                                                <td><span className="ad-status-badge" style={{ background: '#3b82f6' }}>THEORY</span></td>
+                                                <td>
+                                                    <button className="ad-btn ad-btn-ghost" onClick={() => onOpen(c)}>
+                                                        Manage <ChevronRightIcon />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
-        {courses.length === 0 ? (
-            <EmptyState icon={<BookIcon />} title="No courses yet" desc="Create your first course to get started." />
-        ) : (
-            <div className="ad-courses-grid">
-                {courses.map(c => (
-                    <div key={c.id} className={`ad-course-card ad-course-${c.course_type}`} onClick={() => onOpen(c)}>
-                        <div className="ad-course-type-badge">{c.course_type?.toUpperCase()}</div>
-                        <div className="ad-course-icon">
-                            {c.course_type === 'lab' ? <FlaskIcon /> : <TheoryIcon />}
-                        </div>
-                        <h3 className="ad-course-name">{c.course_name}</h3>
-                        <p className="ad-course-code">{c.course_code}</p>
-                        <div className="ad-course-meta">
-                            <span>Sem {c.semester_id}</span>
-                            <span>{c.credits} Credits</span>
-                        </div>
-                        <div className="ad-course-arrow"><ChevronRightIcon /></div>
-                    </div>
-                ))}
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 const SessionsView = ({ course, sessions, onOpenSession, onDeleteSession, onCreateSession }) => (
     <div className="ad-section">
@@ -903,7 +994,7 @@ const CreateUserModal = ({ defaultRole, onSubmit, loading, error }) => (
                 <select name="role" defaultValue={defaultRole}>
                     <option value="faculty">Faculty</option>
                     <option value="student">Student</option>
-                    <option value="hod">HOD</option>
+                    <option value="principal">Principal</option>
                 </select>
             </div>
         </div>
@@ -1049,6 +1140,19 @@ const DownloadIcon = () => (
 const UploadIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
+);
+const SunIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+);
+const MoonIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
 );
 

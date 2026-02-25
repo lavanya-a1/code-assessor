@@ -6,18 +6,29 @@
 
 /* ── CSS Variables ──────────────────────────────────────────── */
 :root {
-    --ad-bg: #0d0f14;
-    --ad-surface: #13161e;
-    --ad-surface-2: #1a1e2a;
-    --ad-surface-3: #21263a;
-    --ad-border: rgba(255, 255, 255, 0.07);
-    --ad-border-hover: rgba(255, 255, 255, 0.15);
+    --ad-sidebar-w: 240px;
+    --ad-sidebar-collapsed-w: 68px;
+    --ad-topbar-h: 64px;
+    --ad-transition: 240ms cubic-bezier(.4, 0, .2, 1);
+    --ad-radius-sm: 8px;
+    --ad-radius: 12px;
+    --ad-radius-lg: 16px;
+    --ad-radius-xl: 20px;
+}
 
-    --ad-blue: #3b82f6;
+.ad-layout {
+    --ad-bg: var(--bg-primary);
+    --ad-surface: var(--bg-secondary);
+    --ad-surface-2: var(--bg-tertiary);
+    --ad-surface-3: var(--bg-elevated);
+    --ad-border: var(--border-primary);
+    --ad-border-hover: var(--border-secondary);
+
+    --ad-blue: var(--accent-blue);
     --ad-violet: #8b5cf6;
-    --ad-green: #10b981;
-    --ad-amber: #f59e0b;
-    --ad-red: #ef4444;
+    --ad-green: var(--accent-green);
+    --ad-amber: var(--accent-yellow);
+    --ad-red: var(--accent-red);
     --ad-cyan: #06b6d4;
 
     --ad-blue-glow: rgba(59, 130, 246, 0.15);
@@ -25,19 +36,9 @@
     --ad-green-glow: rgba(16, 185, 129, 0.15);
     --ad-amber-glow: rgba(245, 158, 11, 0.15);
 
-    --ad-text-primary: #f0f2f8;
-    --ad-text-secondary: #8892a4;
-    --ad-text-muted: #4f5872;
-
-    --ad-sidebar-w: 240px;
-    --ad-sidebar-collapsed-w: 68px;
-    --ad-topbar-h: 64px;
-    --ad-transition: 240ms cubic-bezier(.4, 0, .2, 1);
-
-    --ad-radius-sm: 8px;
-    --ad-radius: 12px;
-    --ad-radius-lg: 16px;
-    --ad-radius-xl: 20px;
+    --ad-text-primary: var(--text-primary);
+    --ad-text-secondary: var(--text-secondary);
+    --ad-text-muted: var(--text-muted);
 }
 
 /* ── Reset / Base ───────────────────────────────────────────── */
@@ -259,9 +260,58 @@
     justify-content: space-between;
     padding: 0 28px;
     height: var(--ad-topbar-h);
-    background: rgba(13, 15, 20, 0.85);
+    background: var(--ad-bg);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--ad-border);
+}
+
+.ad-theme-toggle {
+    background: var(--ad-surface-2);
+    border: 1px solid var(--ad-border);
+    color: var(--ad-text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--ad-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--ad-transition);
+}
+
+.ad-theme-toggle:hover {
+    color: var(--ad-blue);
+    border-color: var(--ad-blue);
+}
+
+.ad-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ad-header-logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--ad-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--ad-radius-sm);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all var(--ad-transition);
+}
+
+.ad-header-logout:hover {
+    background: var(--ad-red);
+    color: white;
+}
+
+.ad-header-logout svg {
+    width: 16px;
+    height: 16px;
 }
 
 .ad-topbar-title h1 {
