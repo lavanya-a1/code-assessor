@@ -13,6 +13,7 @@ const HodDashboard = () => {
 
     const [activeTab, setActiveTab] = useState('overview');
     const [assignments, setAssignments] = useState([]);
+    const [myTeachings, setMyTeachings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -41,6 +42,7 @@ const HodDashboard = () => {
             setLoading(true);
             const data = await dashboardAPI.getData();
             setAssignments(data.course_assignments || []);
+            setMyTeachings(data.my_teachings || []);
             setLoading(false);
         } catch (err) {
             setError('Failed to fetch dashboard data');
@@ -92,11 +94,59 @@ const HodDashboard = () => {
     return (
         <div className="hod-layout">
             <header className="f-topbar">
-                <div className="f-topbar-left">
+                <div className="f-topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
                     <div className="f-brand">
                         <div className="f-brand-icon"><span>&lt;&gt;</span></div>
                         <span className="f-brand-name">CodeLearn Pro</span>
                     </div>
+                    
+                    <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                        <button
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: activeTab === 'overview' ? 'var(--accent-blue)' : 'var(--text-muted)',
+                                fontSize: '14px',
+                                fontWeight: activeTab === 'overview' ? '600' : '500',
+                                cursor: 'pointer',
+                                padding: '4px 8px',
+                                transition: 'color 0.2s'
+                            }}
+                            onClick={() => setActiveTab('overview')}
+                        >
+                            Overview
+                        </button>
+                        <button
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: activeTab === 'assign' ? 'var(--accent-blue)' : 'var(--text-muted)',
+                                fontSize: '14px',
+                                fontWeight: activeTab === 'assign' ? '600' : '500',
+                                cursor: 'pointer',
+                                padding: '4px 8px',
+                                transition: 'color 0.2s'
+                            }}
+                            onClick={() => setActiveTab('assign')}
+                        >
+                            Assign Faculty
+                        </button>
+                        <button
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: activeTab === 'teachings' ? 'var(--accent-blue)' : 'var(--text-muted)',
+                                fontSize: '14px',
+                                fontWeight: activeTab === 'teachings' ? '600' : '500',
+                                cursor: 'pointer',
+                                padding: '4px 8px',
+                                transition: 'color 0.2s'
+                            }}
+                            onClick={() => setActiveTab('teachings')}
+                        >
+                            My Teachings
+                        </button>
+                    </nav>
                 </div>
 
                 <div className="f-topbar-right">
@@ -127,23 +177,8 @@ const HodDashboard = () => {
                     </div>
                 </header>
 
-                <div className="dashboard-tabs">
-                    <button
-                        className={activeTab === 'overview' ? 'active' : ''}
-                        onClick={() => setActiveTab('overview')}
-                    >
-                        Overview
-                    </button>
-                    <button
-                        className={activeTab === 'assign' ? 'active' : ''}
-                        onClick={() => setActiveTab('assign')}
-                    >
-                        Assign Faculty
-                    </button>
-                </div>
-
                 <div className="dashboard-content">
-                    {activeTab === 'overview' ? (
+                    {activeTab === 'overview' && (
                         <div className="dashboard-card overview-card">
                             <div className="card-header">
                                 <h3>Course Assignments</h3>
@@ -184,7 +219,9 @@ const HodDashboard = () => {
                                 </table>
                             </div>
                         </div>
-                    ) : (
+                    )}
+
+                    {activeTab === 'assign' && (
                         <div className="dashboard-card assign-card">
                             <div className="card-header">
                                 <h3>Assign Faculty to Course</h3>
@@ -244,6 +281,60 @@ const HodDashboard = () => {
                                     {assignLoading ? 'Assigning...' : 'Assign Faculty'}
                                 </button>
                             </form>
+                        </div>
+                    )}
+
+                    {activeTab === 'teachings' && (
+                        <div className="dashboard-card teachings-card">
+                            <div className="card-header">
+                                <h3>My Teaching Assignments</h3>
+                                <p className="subtitle">Courses you are teaching as faculty</p>
+                            </div>
+                            <div className="table-container">
+                                {myTeachings.length > 0 ? (
+                                    <table className="hod-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Course Code</th>
+                                                <th>Course Name</th>
+                                                <th>Type</th>
+                                                <th>Section</th>
+                                                <th>Schedule</th>
+                                                <th>Students</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {myTeachings.map((teaching) => (
+                                                <tr key={teaching.id}>
+                                                    <td className="font-mono">{teaching.course_code}</td>
+                                                    <td>{teaching.course_name}</td>
+                                                    <td>
+                                                        <span className={`type-badge ${teaching.course_type}`}>
+                                                            {teaching.course_type?.toUpperCase()}
+                                                        </span>
+                                                    </td>
+                                                    <td>{teaching.section_name}</td>
+                                                    <td className="schedule-cell">{teaching.schedule || 'Not set'}</td>
+                                                    <td>
+                                                        <span className="student-badge">{teaching.enrolled_count}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`status-badge ${teaching.status?.toLowerCase()}`}>
+                                                            {teaching.status || 'ACTIVE'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="empty-state">
+                                        <p>No teaching assignments found</p>
+                                        <small>You are not currently assigned to teach any courses.</small>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
